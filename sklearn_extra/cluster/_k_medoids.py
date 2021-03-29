@@ -24,6 +24,19 @@ from sklearn.exceptions import ConvergenceWarning
 from ._k_medoids_helper import _compute_optimal_swap, _build
 
 
+# pairwise distance calculator
+def pairwise_distance(X, metric):
+    # Assumes input X = (n,1) n i the number of points
+    n = X.shape[0]
+    distance_matrix = np.zeros((n, n))
+    
+    for i in range(n):
+        for j in range(i,n):
+            distance_matrix[i,j] = metric(X[i], X[j])
+            distance_matrix[j,i] = distance_matrix[i,j]
+    
+    return distance_matrix
+
 class KMedoids(BaseEstimator, ClusterMixin, TransformerMixin):
     """k-medoids clustering.
 
@@ -191,7 +204,7 @@ class KMedoids(BaseEstimator, ClusterMixin, TransformerMixin):
                 % (self.n_clusters, X.shape[0])
             )
 
-        D = pairwise_distances(X, metric=self.metric)
+        D = pairwise_distance(X, metric=self.metric)
         medoid_idxs = self._initialize_medoids(
             D, self.n_clusters, random_state_
         )
